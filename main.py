@@ -31,13 +31,7 @@ gw.build()
 gw.visualize(show_gridworld=True,show_rewardworld=True,show_mergeworld=True)
 
 input("Press enter to start SARSA")
-"""# Move
-_,k,b = gw.step("down")
-# Show GW
-gw.visualize()
-print("Reward: " + str(b))
-print("Finished: " + str(k))
-"""
+
 
 # define actionspace
 action_space=[0,1,2,3]
@@ -63,9 +57,9 @@ for episode in tqdm(range(sarsa.total_episodes)):
 #             print("Unexplored: ",(tmp[0]/Q.size)*100, "%")
     
     t = 0 # reset temperatur during episodes
-    stateTMP, _ = gw.reset() # reset gridworld and get initial state   
-    
-    state1 = copy.deepcopy(stateTMP) # prevent bugs 
+    gw.reset()
+       
+    state1 = copy.deepcopy(gw.grid_world) # prevent bugs 
     
     idx_state1 = gw.get_player_idx() # state needs to be an index for the condition work 
     action1 = sarsa.choose_action(idx_state1) # get current action
@@ -143,7 +137,7 @@ for timestep in range(20):
     print("T=", timestep)
     print("Total reward=",total_reward)
     print("chosen action:",action,"-->",dict_moves[action])
-    gw.visualize(show_mergeworld=True)
+    gw.visualize(show_mergeworld=True, show_gridworld=True,show_rewardworld=True)
 
     if finished:
         print("is finished")
