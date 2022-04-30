@@ -16,10 +16,10 @@ class Gridworld:
     def __init__(self,dim):
         
         self.dim = dim
-        self.gid_world = []
+        self.grid_world = []
         self.reward_world = []
         
-        self.gid_world_original = []
+        self.grid_world_original = []
         self.reward_world_original = []
         
         self.free_fields = []
@@ -27,8 +27,7 @@ class Gridworld:
         self.tele_idx = []
         
         self.finished = False
-        
-    
+            
     def build(self):
         
         ######### Build GW #########
@@ -68,7 +67,11 @@ class Gridworld:
 
         self.reward_world[self.goal] = "+" # place positive reward (terminal state)
         
-        self.reward_world[self.tele_idx] = self.symbols["Teleport"] # place teleports
+        self.reward_world[self.tele_idx] = self.symbols["Teleport"] # place teleports  
+
+        ######### Set starting point #########
+
+        self.grid_world[0] = self.symbols["Player"] # top left
 
         # Save Backup
 
@@ -76,21 +79,27 @@ class Gridworld:
         
         self.grid_world_original = copy.deepcopy(self.grid_world)
         
-        
-        ######### Set starting point #########
 
-        self.grid_world[0] = self.symbols["Player"] # top left
+        #Check solvability
+        if self.check_if_solvable()==False:
+            self.build()
+        
         
         return self.grid_world, self.reward_world
-    
+
+    def check_if_solvable(self):
+        #TODO
+        return True
+
     def reset(self):
         
         self.reward_world = self.reward_world_original
         self.grid_world = self.grid_world_original
-
+        self.finished = False
+        #self.grid_world[0] = self.symbols["Player"]
         return self.grid_world, self.reward_world
 
-    def move(self, action):
+    def step(self, action):
         
         idx = np.where(self.grid_world == self.symbols["Player"])[0]
         idx = idx[0]
@@ -334,6 +343,7 @@ class Gridworld:
             
         else:
             print("Please choose an action [left,right,up,down]!")        
+
     def create_visual_border(self, viz):
         return((self.dim*2)+1)*self.symbols["Wall"]+"\n"+self.symbols["Wall"]+str(viz).replace(' [', '').replace('[', '').replace(']', '').replace('\'', '').replace('\n', self.symbols["Wall"]+'\n'+self.symbols["Wall"])+self.symbols["Wall"]+"\n"+((self.dim*2)+1)*self.symbols["Wall"]+"\n"
     
