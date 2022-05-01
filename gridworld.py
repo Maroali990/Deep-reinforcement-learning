@@ -93,8 +93,8 @@ class Gridworld:
 
     def reset(self):
         
-        self.reward_world = self.reward_world_original
-        self.grid_world = self.grid_world_original
+        self.reward_world = copy.deepcopy(self.reward_world_original)
+        self.grid_world = copy.deepcopy(self.grid_world_original)
         self.finished = False
         #self.grid_world[0] = self.symbols["Player"]
         return self.get_player_idx(), self.reward_world
@@ -151,7 +151,7 @@ class Gridworld:
                     
                     if self.reward_world[idx-1] == "+":
                         
-                        self.reward = +1
+                        self.reward = +500
                         self.finished = True
                         
                     elif self.reward_world[idx-1] == "-":
@@ -210,7 +210,7 @@ class Gridworld:
                     
                     if self.reward_world[idx+1] == "+":
                         
-                        self.reward = +1
+                        self.reward = +500
                         self.finished = True
                         
                     elif self.reward_world[idx+1] == "-":
@@ -268,7 +268,7 @@ class Gridworld:
                     
                     if self.reward_world[idx-self.dim] == "+":
                         
-                        self.reward = +1
+                        self.reward = +500
                         self.finished = True
                         
                     elif self.reward_world[idx-self.dim] == "-":
@@ -327,7 +327,7 @@ class Gridworld:
                     
                     if self.reward_world[idx+self.dim] == "+":
                         
-                        self.reward = +1
+                        self.reward = +500
                         self.finished = True
                         
                     elif self.reward_world[idx+self.dim] == "-":
