@@ -1,6 +1,7 @@
 import time
 import gridworld
 import n_sarsa
+import sarsa2
 import os
 import numpy as np
 import copy
@@ -37,7 +38,11 @@ input("Press enter to start SARSA")
 action_space=[0,1,2,3]
 dict_moves={0:"left",1:"right",2:"up",3:"down"}
 
-sarsa=n_sarsa.sarsa(dim*dim,action_space,total_episodes=50000)
+sarsa=sarsa2.Sarsa2(dim*dim,action_space,gw.get_target_idx(),alpha=0.8,gamma=0.9, n_of_episodes=10, n=1)
+
+sarsa.train(gw)
+
+"""sarsa=n_sarsa.sarsa(dim*dim,action_space,total_episodes=50000)
 
 # initializing the reward
 reward = 0
@@ -108,13 +113,11 @@ for i in sarsa.Q:
         moves_ls.append(dict_moves[np.argmax(i)])
     
 moves_ls = np.array(moves_ls)
-moves_ls = moves_ls.reshape(dim,dim)
+moves_ls = moves_ls.reshape(dim,dim)"""
 
-gw.reset() 
-gw.visualize()
 
-print("Learned moves: \n")
-print(moves_ls)
+#print("Learned moves: \n")
+#print(moves_ls)
 
 gw.visualize(show_mergeworld=True, show_gridworld=True,show_rewardworld=True)
 
@@ -126,7 +129,7 @@ for timestep in range(20):
     # get index of player in current state
     idx_state = gw.get_player_idx()
     action=sarsa.choose_action(idx_state)
-    s,finished,reward=gw.step(dict_moves[action])
+    s,finished,reward=gw.step(action)
     total_reward+=reward
     #clear screen
     if os.name == 'posix': #Linux, Mac
@@ -137,7 +140,7 @@ for timestep in range(20):
     print("T=", timestep)
     print("Total reward=",total_reward)
     print("chosen action:",action,"-->",dict_moves[action])
-    gw.visualize(show_mergeworld=True, show_gridworld=True,show_rewardworld=True)
+    gw.visualize(show_mergeworld=True, show_gridworld=True,show_rewardworld=False)
 
     if finished:
         print("is finished")

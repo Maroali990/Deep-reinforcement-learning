@@ -1,91 +1,94 @@
+import time
 import numpy as np
-class sarsa2():
-    
-    
-    NUM_STATES = 19 # number of states (not including the ending state)
-    START = 9
-    END_0 = 0
-    END_1 = 20
+import copy
+import random
 
-    def __init__(self, n, start=START, end=False, lr=0.1, gamma=1, debug=False):
-            self.actions = ["left", "right"]
-            self.state = start  # current state
-            self.end = end
-            self.n = n
-            self.lr = lr
-            self.gamma = gamma
-            self.debug = debug
-            # init q estimates
-            self.Q_values = {}
-            for i in range(self.NUM_STATES + 2):
-                self.Q_values[i] = {}
-                for a in self.actions:
-                    if i in [self.END_0, self.END_1]:
-                        # explicitly set end state values
-                        if i == self.END_0:
-                            self.Q_values[i][a] = -1
-                        else:
-                            self.Q_values[i][a] = 1
-                    else:
-                        self.Q_values[i][a] = 0
+class Sarsa2():
+    N=1
+    Q=np.zeros((1,1))
+    gamma=0.9
+    epsilon=0.9
+    alpha=0.8
+    n_of_episodes=10
+    action_space=[0,1,2,3]
+    max_steps=10
 
-    def chooseAction(self):
-            action = np.random.choice(self.actions)
+    def __init__(self,number_of_states,action_space,terminal_state,alpha=0.8,gamma=0.9,epsilon=0.9, n_of_episodes=10, n=1, max_steps=100):
+        self.N=n
+
+        # initialize Q value table 
+        self.Q = np.zeros((number_of_states,len(action_space)))
+        self.Q[terminal_state] = 0
+
+        self.gamma=gamma
+        self.alpha=alpha
+        self.epsilon=epsilon
+        self.n_of_episodes=n_of_episodes
+        self.action_space=action_space
+        self.max_steps=max_steps
+
+    def choose_action(self,state):
+        if np.random.uniform(0, 1) < self.epsilon:
+
+            # sample random action
+            action = random.sample(self.action_space,1)[0] 
+            return action
+            
+        else:
+            
+            # get best action (maximize Q value)
+            action = np.argmax(self.Q[state, :]) # requires index of the player (state)
+            
             return action
 
-    def takeAction(self, action):
-            new_state = self.state
-            if not self.end:
-                if action == "left":
-                    new_state = self.state - 1
-                else:
-                    new_state = self.state + 1
 
-                if new_state in [self.END_0, self.END_1]:
-                    self.end = True
-            self.state = new_state
-            return self.state
+    def train(self,gw):
+        gw=copy.deepcopy(gw)
+        for n_of_episode in range(self.n_of_episodes):
+            
+            #Initialize S
+            gw.reset()
+            
+            state_1=gw.get_player_idx()
+            #Choose action using Q
+            action_1=self.choose_action(state_1)
 
-    def play(self, rounds=100):
-            for _ in range(rounds):
-                self.reset()
-                t = 0
-                T = np.inf
-                action = self.chooseAction()
+            finished=False
 
-                actions = [action]
-                states = [self.state]
-                rewards = [0]
-                while True:
-                    if t < T:
-                        state = self.takeAction(action)  # next state
-                        reward = self.giveReward()  # next state-reward
+            states=[state_1]
+            actions=[action_1]
+            t=0
+            while t<self.max_steps:
+                
+                rewards=[]
+                for n in range(self.N):
+                    #Take action
+                    s,finished,r=gw.step(actions[-1])
+                    states.append(s)
+                    rewards.append(r*self.gamma**n)
 
-                        states.append(state)
-                        rewards.append(reward)
+                    #Choose action using Q
+                    ca=self.choose_action(states[-1])
+                    actions.append(ca)
 
-                        if self.end:
-                            if self.debug:
-                                print("End at state {} | number of states {}".format(state, len(states)))
-                            T = t + 1
-                        else:
-                            action = self.chooseAction()
-                            actions.append(action)  # next action
-                    # state tau being updated
-                    tau = t - self.n + 1
-                    if tau >= 0:
-                        G = 0
-                        for i in range(tau + 1, min(tau + self.n + 1, T + 1)):
-                            G += np.power(self.gamma, i - tau - 1) * rewards[i]
-                        if tau + self.n < T:
-                            state_action = (states[tau + self.n], actions[tau + self.n])
-                            G += np.power(self.gamma, self.n) * self.Q_values[state_action[0]][state_action[1]]
-                        # update Q values
-                        state_action = (states[tau], actions[tau])
-                        self.Q_values[state_action[0]][state_action[1]] += self.lr * (
-                                    G - self.Q_values[state_action[0]][state_action[1]])
+                    print(n_of_episode)
+                    print(ca)
+                    gw.visualize(show_mergeworld=True, show_gridworld=True,show_rewardworld=False)
+                    time.sleep(0.2)
 
-                    if tau == T - 1:
+
+                    if finished:
                         break
 
-                    t += 1
+                returns=sum(rewards)
+            
+                self.Q[states[0],actions[0]]=self.Q[states[0],actions[0]]+self.alpha*(returns+-self.Q[states[0],actions[0]])
+                t+=1
+                if finished:
+                    break
+
+
+
+
+
+

@@ -85,7 +85,7 @@ class Gridworld:
             self.build()
         
         
-        return self.grid_world, self.reward_world
+        return self.get_player_idx(), self.reward_world
 
     def check_if_solvable(self):
         #TODO
@@ -97,10 +97,11 @@ class Gridworld:
         self.grid_world = self.grid_world_original
         self.finished = False
         #self.grid_world[0] = self.symbols["Player"]
-        return self.grid_world, self.reward_world
+        return self.get_player_idx(), self.reward_world
 
     def step(self, action):
-        
+        dict_moves={0:"left",1:"right",2:"up",3:"down"}
+        action=dict_moves[action]
         idx = np.where(self.grid_world == self.symbols["Player"])[0]
         idx = idx[0]
         
@@ -112,13 +113,13 @@ class Gridworld:
             
             if idx == 0 or (idx%self.dim) == 0:
         
-                return self.grid_world, self.finished, self.reward
+                return self.get_player_idx(), self.finished, self.reward
             
             else:
                 
                 if self.grid_world[idx-1]  == self.symbols["Wall"]:
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # check for teleports and teleport with 60% probability
                 
@@ -130,7 +131,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[1]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                     
                 elif idx-1 == self.tele_idx[1] and random.randint(0,100) > 40:
                     
@@ -140,7 +141,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[0]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                    
                 # if path isnt blocked
                 
@@ -163,7 +164,7 @@ class Gridworld:
                     
                     self.grid_world[idx-1] = self.symbols["Player"]
                 
-                return self.grid_world, self.finished, self.reward
+                return self.get_player_idx(), self.finished, self.reward
             
         elif action == "right":
             
@@ -171,13 +172,13 @@ class Gridworld:
             
             if idx == (self.dim-1) or idx == (len(self.grid_world)-1):
                 
-                return self.grid_world, self.finished, self.reward
+                return self.get_player_idx(), self.finished, self.reward
             
             else:
                 
                 if self.grid_world[idx+1] == self.symbols["Wall"]:
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # check for teleports and teleport with 60% probability
                 
@@ -189,7 +190,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[1]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                     
                 elif idx+1 == self.tele_idx[1] and random.randint(0,100) > 40:
                     
@@ -199,7 +200,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[0]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # if path isnt blocked
                 
@@ -221,7 +222,7 @@ class Gridworld:
                     
                     self.grid_world[idx+1] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
             
         elif action == "up":
             
@@ -229,13 +230,13 @@ class Gridworld:
             
             if idx in range(0,(self.dim-1)):
                 
-                return self.grid_world, self.finished, self.reward
+                return self.get_player_idx(), self.finished, self.reward
             
             else:
                 
                 if self.grid_world[idx-self.dim] == self.symbols["Wall"]:
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # check for teleports and teleport with 60% probability
                 
@@ -247,7 +248,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[1]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                     
                 elif idx-self.dim == self.tele_idx[1] and random.randint(0,100) > 40:
                     
@@ -257,7 +258,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[0]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # if path isnt blocked
                 
@@ -280,7 +281,7 @@ class Gridworld:
                     
                     self.grid_world[idx-self.dim] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
             
         elif action == "down":
             
@@ -288,13 +289,13 @@ class Gridworld:
             
             if idx in range(len(self.grid_world)-self.dim,len(self.grid_world)):
                 
-                return self.grid_world, self.finished, self.reward
+                return self.get_player_idx(), self.finished, self.reward
             
             else:
                 
                 if self.grid_world[idx+self.dim] == self.symbols["Wall"]:
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # check for teleports and teleport with 60% probability
                 
@@ -306,7 +307,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[1]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                     
                 elif idx+self.dim == self.tele_idx[1] and random.randint(0,100) > 40:
                     
@@ -316,7 +317,7 @@ class Gridworld:
                     
                     self.grid_world[self.tele_idx[0]] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
                 
                 # if path isnt blocked
                 
@@ -339,7 +340,7 @@ class Gridworld:
                     
                     self.grid_world[idx+self.dim] = self.symbols["Player"]
                     
-                    return self.grid_world, self.finished, self.reward
+                    return self.get_player_idx(), self.finished, self.reward
             
         else:
             print("Please choose an action [left,right,up,down]!")        
@@ -376,3 +377,6 @@ class Gridworld:
     
     def get_player_idx(self):
         return np.where(self.grid_world == self.symbols["Player"])[0][0]
+
+    def get_target_idx(self):
+        return np.where(self.reward_world == "+")[0][0]
